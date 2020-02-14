@@ -11,11 +11,15 @@ class cVsdk(object):
         self.axis_ = np.zeros((3, ))
         self.p_ = np.zeros((3, ))
         self.jac_ = np.zeros((6, 6))
+        self.mee = np.eye(4)
         pass
 
     def add_link(self, _a, _d, _alpha, _theta):
         self.mij_.append(cDHmatrix(_a, _d, _alpha, _theta))
         self.m0j_.append(np.zeros((4, 4)))
+
+    def setTCP(self, _x, _y, _z):
+        self.mee[0:3, 3] = _x, _y, _z
 
     def __call__(self, _q):
 
@@ -24,7 +28,8 @@ class cVsdk(object):
         for i, mij in enumerate(self.mij_[1:]):
             self.m0j_[i + 1][:, :] = self.m0j_[i].dot(mij(_q[i + 1]))
 
-        return self.m0j_[-1]
+        res = self.m0j_[-1]*self.mee
+        return res
 
     def __len__(self):
         return len(self.mij_)

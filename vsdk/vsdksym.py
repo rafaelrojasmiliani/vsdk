@@ -2,11 +2,13 @@ import numpy as np
 import sympy as sp
 from sympy import cos, sin
 
+
 class cVsdkSym(object):
     ''' Direct Kinematic symbolic function generator.  Very
     symple funciton meat to solve very simple direct kinematic
     problems.
     '''
+
     def __init__(self):
         self.mij_ = []
         self.m0j_ = []
@@ -22,25 +24,25 @@ class cVsdkSym(object):
         self.dim_ += 1
 
     def setTCP(self, _x, _y, _z):
-        self.mee[0:3, 3] = _x, _y, _z 
+        self.mee[0:3, 3] = _x, _y, _z
 
     def __call__(self):
-        
+
         q = self.q_[0]
         self.m0j_[0] = self.mij_[0](q)
 
         for i, mij in enumerate(self.mij_[1:], start=1):
             q = self.q_[i]
-            self.m0j_[i] = self.m0j_[i-1]*mij(q)
+            self.m0j_[i] = self.m0j_[i - 1] * mij(q)
 
-        res = self.mee*self.m0j_[-1]
+        res = self.m0j_[-1] * self.mee
         return res
 
     def __len__(self):
         return len(self.mij_)
 
     def jac(self):
-        
+
         pe = self()[:3, -1]
         jac = sp.zeros(6, self.dim_)
         axis = sp.Matrix([0.0, 0.0, 1.0])
@@ -52,6 +54,7 @@ class cVsdkSym(object):
             p = self.m0j_[j][:3, -1]
 
         return jac
+
 
 class cDHmatrixSym(object):
     def __init__(self, _a, _d, _alpha, _theta):
@@ -83,4 +86,3 @@ class cDHmatrixSym(object):
 
         res[3, 3] = 1
         return res
-
