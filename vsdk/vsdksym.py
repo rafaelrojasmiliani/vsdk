@@ -23,7 +23,7 @@ class cVsdkSym(object):
         self.q_.append(qs)
         self.dim_ += 1
 
-    def setTCP(self, _x, _y, _z):
+    def set_tcp_offset(self, _x, _y, _z):
         self.mee[0:3, 3] = _x, _y, _z
 
     def __call__(self):

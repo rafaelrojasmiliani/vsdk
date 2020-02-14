@@ -4,10 +4,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sympy as sp
 import unittest
-from gsplines.gspline import cSplineCalc
-from gsplines.distfunction import cDistFunction
-from gsplines.basis1010 import cBasis1010
 
+from vsdk.vsdk import cVsdk
 import functools
 import traceback
 import sys
@@ -42,6 +40,11 @@ class cMyTest(unittest.TestCase):
 
     @debug_on()
     def test(self):
+        dk = cVsdk()
+        dof = np.random.randint(2, 8)
+        for i in range(dof):
+            dh = np.random.randn(4)
+            dk.add_link(*dh)
 
 
 def main():

@@ -18,7 +18,7 @@ class cVsdk(object):
         self.mij_.append(cDHmatrix(_a, _d, _alpha, _theta))
         self.m0j_.append(np.zeros((4, 4)))
 
-    def setTCP(self, _x, _y, _z):
+    def set_tcp_offset(self, _x, _y, _z):
         self.mee[0:3, 3] = _x, _y, _z
 
     def __call__(self, _q):
