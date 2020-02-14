@@ -28,7 +28,7 @@ class cVsdk(object):
         for i, mij in enumerate(self.mij_[1:]):
             self.m0j_[i + 1][:, :] = self.m0j_[i].dot(mij(_q[i + 1]))
 
-        res = self.m0j_[-1]*self.mee
+        res = self.m0j_[-1].dot(self.mee)
         return res
 
     def __len__(self):
