@@ -5,10 +5,9 @@ from sympy import cos, sin
 
 class cVsdkSym(object):
     ''' Direct Kinematic symbolic function generator.  Very
-    symple funciton meat to solve very simple direct kinematic
-    problems.
+    symple class meant to generate the direct kinematic function
+    of a robot and its jacobian.
     '''
-
     def __init__(self):
         self.mij_ = []
         self.m0j_ = []
@@ -16,10 +15,15 @@ class cVsdkSym(object):
         self.dim_ = 0
         self.mee = sp.eye(4)
 
-    def add_link(self, _a, _d, _alpha, _theta):
+    def add_link(self, _a, _d, _alpha, _theta, _q=None):
+        ''' Adds a new link to the robot with given DH
+        parameters'''        
         self.mij_.append(cDHmatrixSym(_a, _d, _alpha, _theta))
         self.m0j_.append(sp.zeros(4, 4))
-        qs = sp.symbols('q[{:d}]'.format(len(self.q_)), real=True)
+        if _q is None:
+          qs = sp.symbols('q[{:d}]'.format(len(self.q_)), real=True)
+        else:
+          qs = _q
         self.q_.append(qs)
         self.dim_ += 1
 
@@ -57,6 +61,7 @@ class cVsdkSym(object):
 
 
 class cDHmatrixSym(object):
+    ''' DH transformation matric generator '''
     def __init__(self, _a, _d, _alpha, _theta):
         self.buff_ = sp.zeros(4, 4)
         self.theta_ = _theta
@@ -86,3 +91,32 @@ class cDHmatrixSym(object):
 
         res[3, 3] = 1
         return res
+
+def dh_sym_matrix(_q,  _a, _d, _alpha, _theta):
+      buff_ = sp.zeros(4, 4)
+      theta_ = _theta
+      alpha_ = _alpha
+      a_ = _a
+      d_ = _d
+      cosal_ = cos(_alpha)
+      sinal_ = sin(_alpha)
+
+      cth = cos(theta_ + _q)
+      sth = sin(theta_ + _q)
+      res = sp.zeros(4, 4)
+      res[0, 0] = cth
+      res[0, 1] = -sth * cosal_
+      res[0, 2] = sth * sinal_
+      res[0, 3] = a_ * cth
+
+      res[1, 0] = sth
+      res[1, 1] = cth * cosal_
+      res[1, 2] = -cth * sinal_
+      res[1, 3] = a_ * sth
+
+      res[2, 1] = sinal_
+      res[2, 2] = cosal_
+      res[2, 3] = d_
+
+      res[3, 3] = 1
+      return res
