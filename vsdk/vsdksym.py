@@ -1,6 +1,8 @@
 import numpy as np
 import sympy as sp
 from sympy import cos, sin
+from sympy.core.rules import Transform
+from sympy import Float
 
 
 class cVsdkSym(object):
@@ -8,6 +10,7 @@ class cVsdkSym(object):
     symple class meant to generate the direct kinematic function
     of a robot and its jacobian.
     '''
+
     def __init__(self):
         self.mij_ = []
         self.m0j_ = []
@@ -17,13 +20,13 @@ class cVsdkSym(object):
 
     def add_link(self, _a, _d, _alpha, _theta, _q=None):
         ''' Adds a new link to the robot with given DH
-        parameters'''        
+        parameters'''
         self.mij_.append(cDHmatrixSym(_a, _d, _alpha, _theta))
         self.m0j_.append(sp.zeros(4, 4))
         if _q is None:
-          qs = sp.symbols('q[{:d}]'.format(len(self.q_)), real=True)
+            qs = sp.symbols('q[{:d}]'.format(len(self.q_)), real=True)
         else:
-          qs = _q
+            qs = _q
         self.q_.append(qs)
         self.dim_ += 1
 
@@ -40,6 +43,11 @@ class cVsdkSym(object):
             self.m0j_[i] = self.m0j_[i - 1] * mij(q)
 
         res = self.m0j_[-1] * self.mee
+        for i in range(3):
+            for j in range(4):
+                res[i, j] = res[i, j].xreplace(
+                    Transform(lambda x: x.round(8),
+                              lambda x: isinstance(x, Float)))
         return res
 
     def __len__(self):
@@ -57,11 +65,18 @@ class cVsdkSym(object):
             axis = self.m0j_[j][:3, 2]
             p = self.m0j_[j][:3, -1]
 
+        for i in range(6):
+            for j in range(self.dim_):
+                jac[i, j] = jac[i, j].xreplace(
+                    Transform(lambda x: x.round(8),
+                              lambda x: isinstance(x, Float)))
+
         return jac
 
 
 class cDHmatrixSym(object):
     ''' DH transformation matric generator '''
+
     def __init__(self, _a, _d, _alpha, _theta):
         self.buff_ = sp.zeros(4, 4)
         self.theta_ = _theta
@@ -90,33 +105,40 @@ class cDHmatrixSym(object):
         res[2, 3] = self.d_
 
         res[3, 3] = 1
+
+        for i in range(3):
+            for j in range(4):
+                res[i, j] = res[i, j].xreplace(
+                    Transform(lambda x: x.round(8),
+                              lambda x: isinstance(x, Float)))
         return res
 
-def dh_sym_matrix(_q,  _a, _d, _alpha, _theta):
-      buff_ = sp.zeros(4, 4)
-      theta_ = _theta
-      alpha_ = _alpha
-      a_ = _a
-      d_ = _d
-      cosal_ = cos(_alpha)
-      sinal_ = sin(_alpha)
 
-      cth = cos(theta_ + _q)
-      sth = sin(theta_ + _q)
-      res = sp.zeros(4, 4)
-      res[0, 0] = cth
-      res[0, 1] = -sth * cosal_
-      res[0, 2] = sth * sinal_
-      res[0, 3] = a_ * cth
+def dh_sym_matrix(_q, _a, _d, _alpha, _theta):
+    buff_ = sp.zeros(4, 4)
+    theta_ = _theta
+    alpha_ = _alpha
+    a_ = _a
+    d_ = _d
+    cosal_ = cos(_alpha)
+    sinal_ = sin(_alpha)
 
-      res[1, 0] = sth
-      res[1, 1] = cth * cosal_
-      res[1, 2] = -cth * sinal_
-      res[1, 3] = a_ * sth
+    cth = cos(theta_ + _q)
+    sth = sin(theta_ + _q)
+    res = sp.zeros(4, 4)
+    res[0, 0] = cth
+    res[0, 1] = -sth * cosal_
+    res[0, 2] = sth * sinal_
+    res[0, 3] = a_ * cth
 
-      res[2, 1] = sinal_
-      res[2, 2] = cosal_
-      res[2, 3] = d_
+    res[1, 0] = sth
+    res[1, 1] = cth * cosal_
+    res[1, 2] = -cth * sinal_
+    res[1, 3] = a_ * sth
 
-      res[3, 3] = 1
-      return res
+    res[2, 1] = sinal_
+    res[2, 2] = cosal_
+    res[2, 3] = d_
+
+    res[3, 3] = 1
+    return res
