@@ -77,6 +77,34 @@ class cMyTest(unittest.TestCase):
 
                 assert res == 0
 
+    @debug_on()
+    def testjac_new_vars(self):
+        ''' Test evaluation and correctednes of the jacobian'''
+        print()
+        dk = cVsdkSym()
+        dim = 3
+        x = sp.symbols('x_0:{:d}'.format(dim), real=True)
+        for i in range(dim):
+            a, d, alpha, theta = sp.symbols(
+                'a_{:d} d_{:d} apha_{:d} theta_{:d}'.format(*(4 * [i])),
+                real=True)
+            dk.add_link(a, d, alpha, theta, x[i])
+
+        jacsym = dk.jac()
+        dksym = dk()
+
+        q = dk.q_
+
+        for i in range(3):
+            for j in range(dim):
+                testjac = dksym[i, 3].diff(q[j])
+                print('testing equality {:d}, {:d}'.format(i, j))
+                res = testjac-jacsym[i, j]
+                res = sp.simplify(res)
+                print(res)
+
+                assert res == 0
+
 
 def main():
     unittest.main()
