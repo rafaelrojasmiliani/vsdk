@@ -15,6 +15,8 @@ class cVsdk(object):
         pass
 
     def add_link(self, _a, _d, _alpha, _theta):
+        ''' Add link using DH parameters
+        '''
         self.mij_.append(cDHmatrix(_a, _d, _alpha, _theta))
         self.m0j_.append(np.zeros((4, 4)))
 
