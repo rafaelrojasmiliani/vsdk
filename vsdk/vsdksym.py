@@ -6,9 +6,9 @@ from sympy import Float
 
 
 class cVsdkSym(object):
-    ''' Direct Kinematic symbolic function generator.  Very
-    symple class meant to generate the direct kinematic function
-    of a robot and its jacobian.
+    ''' Direct Kinematic symbolic function generator.  Very symple class meant
+    to generate a symbolic sympy expression of the direct kinematic function of
+    a robot and its jacobian.
     '''
 
     def __init__(self):
@@ -33,14 +33,17 @@ class cVsdkSym(object):
     def set_tcp_offset(self, _x, _y, _z):
         self.mee[0:3, 3] = _x, _y, _z
 
-    def __call__(self):
+    def __call__(self, _q=None):
 
-        q = self.q_[0]
-        self.m0j_[0] = self.mij_[0](q)
+        if _q is None:
+            q = self.q_
+        else:
+            q = _q
+
+        self.m0j_[0] = self.mij_[0](q[0])
 
         for i, mij in enumerate(self.mij_[1:], start=1):
-            q = self.q_[i]
-            self.m0j_[i] = self.m0j_[i - 1] * mij(q)
+            self.m0j_[i] = self.m0j_[i - 1] * mij(q[i])
 
         res = self.m0j_[-1] * self.mee
         for i in range(3):
@@ -53,9 +56,14 @@ class cVsdkSym(object):
     def __len__(self):
         return len(self.mij_)
 
-    def jac(self):
+    def jac(self, _q=None):
 
-        pe = self()[:3, -1]
+        if _q is None:
+            q = self.q_
+        else:
+            q = _q
+
+        pe = self(q)[:3, -1]
         jac = sp.zeros(6, self.dim_)
         axis = sp.Matrix([0.0, 0.0, 1.0])
         p = sp.Matrix([0.0, 0.0, 0.0])
@@ -115,13 +123,12 @@ class cDHmatrixSym(object):
 
 
 def dh_sym_matrix(_q, _a, _d, _alpha, _theta):
-    buff_ = sp.zeros(4, 4)
     theta_ = _theta
     alpha_ = _alpha
     a_ = _a
     d_ = _d
-    cosal_ = cos(_alpha)
-    sinal_ = sin(_alpha)
+    cosal_ = cos(alpha_)
+    sinal_ = sin(alpha_)
 
     cth = cos(theta_ + _q)
     sth = sin(theta_ + _q)
