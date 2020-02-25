@@ -1,7 +1,6 @@
 """ Test very symple direct kinematics for symbolic computation
 """
 import numpy as np
-from matplotlib import pyplot as plt
 import sympy as sp
 import unittest
 
