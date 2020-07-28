@@ -9,9 +9,7 @@ DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --no-install-recommends -o Dpk
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends -o Dpkg::Options::="--force-confnew" \
                     python3-pip git
 RUN pip3 install setuptools
-RUN pip3 install numpy
 RUN pip3 install sympy
-RUN pip3 install scipy
 # user handling
 ARG myuser
 ARG myuid
