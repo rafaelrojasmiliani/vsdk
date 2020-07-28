@@ -1,14 +1,13 @@
 """
 """
 import numpy as np
-import sympy as sp
 import unittest
+import pdb
 
-from vsdk.vsdk import cVsdk
+from vsdk import cVsdk
 import functools
 import traceback
 import sys
-import pdb
 
 
 def debug_on(*exceptions):
@@ -34,7 +33,7 @@ def debug_on(*exceptions):
 
 class cMyTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        super(cMyTest, self).__init__(*args, **kwargs)
+        unittest.TestCase.__init__(self, *args, **kwargs)
         np.set_printoptions(linewidth=500, precision=4)
 
     @debug_on()
